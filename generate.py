@@ -84,10 +84,11 @@ def generate_recipe_html(cook_file: Path) -> str:
         qty = get_quantity_str(ing.get("quantity", {}))
         unit = ing.get("quantity", {}).get("unit", "") or ""
         qty_str = f": {qty}{' ' + unit if unit else ''}" if qty else ""
-        ing_items.append(f"<li>{ing['name']}{qty_str}</li>")
+        ing_items.append(f"<li>{ing['name']}{qty_str}</li>\n")
 
-    # Build cookware list
-    cw_items = [f"<li>{cw['name']}</li>" for cw in cookware]
+    # Build cookware list (deduplicated)
+    unique_cookware = list({cw['name']: cw for cw in cookware}.values())
+    cw_items = [f"<li>{cw['name']}</li>\n" for cw in unique_cookware]
 
     # Build steps
     step_items = []
@@ -95,7 +96,7 @@ def generate_recipe_html(cook_file: Path) -> str:
         for item in section.get("content", []):
             if item.get("type") == "step":
                 step_html = render_step(item["value"], ingredients, cookware, timers)
-                step_items.append(f"<li>{step_html}</li>")
+                step_items.append(f"<li>{step_html}</li>\n")
 
     cookware_section = ""
     if cw_items:
